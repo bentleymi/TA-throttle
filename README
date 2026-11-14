@@ -1,0 +1,54 @@
+TA-throttle
+====
+
+Collects CPU frequency state from /sys/devices/system/cpu (per-core current/min/max frequency, governor) and hardware thermal-throttle counters (package_throttle_count, mperf-based if present). Emits JSON events to index=main (sourcetype throttle:status) and throttle.* metrics to index=metrics (sourcetype throttle:metrics); alarm status when a thermal-throttle counter increases since the previous cycle.
+
+Prerequisites
+-------------
+  * none - pure /sys reads (turbostat not required)
+  * Fixed-frequency server CPUs (e.g. EPYC) expose fewer cpufreq sysfs knobs; throttle counters and core counts are still emitted
+  * Splunk Enterprise or Universal Forwarder 9.x - 10.6 (forwarder recommended
+    on monitored hosts).
+  * A metrics-typed index (default name: metrics) on the indexer:
+
+      [metrics]
+      datatype = metric
+
+    Forwarders only need that index to exist on the indexer side.
+  * No network egress, no root requirement beyond the Splunk service account.
+    Fully standalone add-on with no dependencies.
+
+Install
+-------
+Install on each monitored host (Apps > Install app from file, splunk install
+app, or deployment server), restart Splunk, then verify:
+
+  index=main sourcetype="throttle:status" | head
+
+Search quick reference
+----------------------
+  index=main sourcetype="throttle:status" | head
+  | mcatalog values(metric_name) where index=metrics metric_name="throttle.*" by host
+  | mstats avg("throttle.*") where index=metrics span=60s by host
+
+Usage
+-----
+Events: index=main sourcetype=throttle:status  (cpu_count, governors, min/max, throttle deltas)
+Metrics: throttle.cpu_<n>_cur_freq_mhz, throttle.pkg_<n>_throttle_count, throttle.cpu_count
+Dashboards: TA-Throttle > Throttle Overview / Throttle Metrics
+
+Configure
+---------
+Override the interval or destination index in etc/apps/TA-throttle/local/inputs.conf
+(never edit default/).
+
+Troubleshooting
+---------------
+  * cpufreq may be absent on fixed-frequency CPUs; cur_freq metrics are then omitted.
+  * Throttle deltas use a state file under /var/tmp; first cycle after install has no baseline.
+
+License
+-------
+SOURCE-AVAILABLE (see LICENSE) - free personal, educational and evaluation
+use; commercial or production use requires a paid license from BentleyPC
+LLC (https://www.bentleypc.com).

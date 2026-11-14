@@ -1,0 +1,7 @@
+<application>
+  <nav>
+    <view name="throttle_overview" />
+    <view name="throttle_metrics" />
+    <search label="TA-throttle Events" search="search index=main sourcetype=throttle:status" />
+  </nav>
+</application>
