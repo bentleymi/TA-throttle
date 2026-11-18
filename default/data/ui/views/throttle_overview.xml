@@ -3,7 +3,7 @@
   <description>Collects CPU frequency state from /sys/devices/system/cpu (per-core current/min/max frequency, governor) and hardware thermal-throttle counters (package_throttle_count,</description>
   <row>
     <panel>
-      <title>Logical CPUs (per host, latest)</title>
+      <title>Logical CPUs (fleet, latest)</title>
       <single>
         <search>
           <query>| mstats avg("throttle.cpu_count") as value where index=metrics span=5m
@@ -13,7 +13,7 @@
       </single>
     </panel>
     <panel>
-      <title>Physical packages (per host, latest)</title>
+      <title>Physical packages (fleet, latest)</title>
       <single>
         <search>
           <query>| mstats avg("throttle.pkg_count") as value where index=metrics span=5m
@@ -23,7 +23,7 @@
       </single>
     </panel>
     <panel>
-      <title>Average frequency (MHz, per host)</title>
+      <title>Average frequency (MHz, fleet, latest)</title>
       <single>
         <search>
           <query>| mstats avg("throttle.freq_avg_mhz") as value where index=metrics span=5m
@@ -33,7 +33,7 @@
       </single>
     </panel>
     <panel>
-      <title>Fixed governors in use (1=only one governor)</title>
+      <title>Fixed governors in use (fleet, latest; 1=only one governor)</title>
       <single>
         <search>
           <query>| mstats avg("throttle.governor_fixed") as value where index=metrics span=5m
@@ -51,10 +51,10 @@
           <query>index=main sourcetype="throttle:status"
 | dedup host
 | rex field=_raw max_match=0 "\"(?&lt;k&gt;[^\"]+)\":\s*(?&lt;o&gt;\{[^{}]*\})"
-| where match(o,"\"throttle_count\"")
 | eval z=mvzip(k,o,"^^")
 | mvexpand z
 | rex field=z "^(?&lt;k&gt;[^^]+)\^\^(?&lt;o&gt;.+)$"
+| where match(o,"\"throttle_count\"")
 | spath input=o path=throttle_count | spath input=o path=new
 | table host k throttle_count new</query>
           <done/>

@@ -51,9 +51,14 @@ def _read_cpu(name):
     return rec
 
 
+def _state_path():
+    # uid-suffixed so a root manual run can never wedge the service-owned baseline
+    return "%s.%s" % (STATE_FILE, os.getuid())
+
+
 def _load_state():
     try:
-        with open(STATE_FILE) as fh:
+        with open(_state_path()) as fh:
             state = json.load(fh)
     except (OSError, ValueError):
         return {}
@@ -61,12 +66,15 @@ def _load_state():
 
 
 def _save_state(state):
+    path = _state_path()
+    tmp = "%s.tmp.%s" % (path, os.getpid())
     try:
         os.makedirs("/var/tmp", exist_ok=True)
-        with open(STATE_FILE, "w") as fh:
+        with open(tmp, "w") as fh:
             json.dump(state, fh)
-    except (OSError, TypeError, ValueError):
-        pass
+        os.replace(tmp, path)
+    except (OSError, TypeError, ValueError) as exc:
+        sys.stderr.write("TA-throttle state save error: %s\n" % exc)
 
 
 def _pkg_key(pkg):
