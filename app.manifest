@@ -7,12 +7,20 @@
       "name": "TA-throttle",
       "version": "1.0.2"
     },
-    "author": [{"name":"Michael \"JKat54\" Bentley","email":"michael@bentleypc.com","company":"BentleyPC LLC"}],
+    "author": [
+      {
+        "name": "Michael \"JKat54\" Bentley",
+        "email": "michael@bentleypc.com",
+        "company": "BentleyPC LLC"
+      }
+    ],
     "releaseDate": "11/16/2026",
     "description": "Collects CPU frequency state from /sys/devices/system/cpu (per-core current/min/max frequency, governor) and hardware thermal-throttle counters (package_throttle_count, mperf-based if present). Emits JSON events to index=main (sourcetype throttle:status) and throttle.* metrics to index=metrics (sourcetype throttle:metrics); alarm status when a thermal-throttle counter increases since the previous cycle.",
     "classification": {
       "intendedAudience": "IT",
-      "categories": ["IT Operations"],
+      "categories": [
+        "IT Operations"
+      ],
       "developmentStatus": "Production/Latest"
     },
     "commonInformationModels": null,
@@ -41,5 +49,9 @@
     "_standalone",
     "_distributed"
   ],
-  "targetWorkloads": ["_search_heads", "_indexers"]
+  "targetWorkloads": [
+    "_search_heads",
+    "_indexers"
+  ],
+  "version": "1.0.8"
 }
